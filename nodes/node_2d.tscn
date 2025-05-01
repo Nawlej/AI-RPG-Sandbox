@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4duway68xawa"]
+
+[ext_resource type="PackedScene" uid="uid://drmqmiohuncs1" path="res://nodes/PlayerSprite.tscn" id="1_8csfl"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(-5, -55)
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("1_8csfl")]
+position = Vector2(-2, -58)
