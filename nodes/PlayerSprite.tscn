@@ -1,52 +1,105 @@
-[gd_scene load_steps=5 format=3 uid="uid://drmqmiohuncs1"]
+[gd_scene load_steps=4 format=3 uid="uid://drmqmiohuncs1"]
 
-[ext_resource type="Texture2D" uid="uid://b0cddae7khf34" path="res://assets/Circle.png" id="1_jvolt"]
+[ext_resource type="Texture2D" uid="uid://snk838bkni7c" path="res://assets/Small Circle.png" id="1_0h72e"]
 
 [sub_resource type="GDScript" id="GDScript_qtnep"]
 script/source = "extends CharacterBody2D
 
+const TILE_SIZE = 16
+const MOVE_SPEED = 100
 
-const SPEED = 300.0
-const JUMP_VELOCITY = -400.0
+@onready var tilemap = %TileMap
+var target_position: Vector2
+var moving = false
+var last_input_vector := Vector2.ZERO
 
-# Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
+func _ready():
+	target_position = position
 
+func _physics_process(_delta):
+	moveObject()
 
-func _physics_process(delta):
-	# Add the gravity.
-#	if not is_on_floor():
-#		velocity.y += gravity * delta
-
-	# Handle Jump.
-	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
-	if direction:
-		velocity.x = direction * SPEED
+func moveObject():
+	if moving:
+		var direction = (target_position - position).normalized()
+		velocity = direction * MOVE_SPEED
+		move_and_slide()
+		if position.distance_to(target_position) < 1:
+			position = target_position  # Snap to grid
+			moving = false
+			velocity = Vector2.ZERO
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
+		var input_vector = get_input_vector()
+		if input_vector != Vector2.ZERO:
+			var new_target = position + input_vector * TILE_SIZE
+			if not is_colliding(new_target):
+				target_position = new_target
+				moving = true
 
-	move_and_slide()
+func get_input_vector() -> Vector2:
+	var input_vector := Vector2.ZERO
 
-func player_movement(delta):
-	if Input.is_action_just_pressed(\"ui_right\") and is_on_floor():
-	velocity.x = speed 
-	velocity.y = 0
+	if Input.is_action_pressed(\"ui_right\"):
+		input_vector.x += 1
+	if Input.is_action_pressed(\"ui_left\"):
+		input_vector.x -= 1
+	if Input.is_action_pressed(\"ui_down\"):
+		input_vector.y += 1
+	if Input.is_action_pressed(\"ui_up\"):
+		input_vector.y -= 1
+
+	# Only one axis at a time, based on last input direction
+	if input_vector.x != 0 and input_vector.y != 0:
+		if abs(last_input_vector.x) > 0:
+			input_vector.y = 0
+		else:
+			input_vector.x = 0
+	return input_vector.normalized()
+
+func is_colliding(target_pos: Vector2) -> bool:
+	# Optional: implement collision checking here
+	var list = getObjectLocations()
+	if list.has(get_current_tile(target_pos)):
+		return true
+	return false  # Replace with actual logic if needed
+
+func _unhandled_input(event):
+	if event is InputEventKey and event.pressed:
+		if event.is_action_pressed(\"ui_up\"):
+			last_input_vector = Vector2(0, -1)
+		elif event.is_action_pressed(\"ui_down\"):
+			last_input_vector = Vector2(0, 1)
+		elif event.is_action_pressed(\"ui_left\"):
+			last_input_vector = Vector2(-1, 0)
+		elif event.is_action_pressed(\"ui_right\"):
+			last_input_vector = Vector2(1, 0)
+
+func getObjectLocations():
+		var nodes = get_top_level_nodes()
+		var list = []
+		for n in nodes:
+			list.append(get_current_tile(n.position))
+# Get the image size 
+# If image size > tilesize then append extra tile positions
+			if n.get_node(\"Image\") != null:
+				if n.get_node(\"Image\").tile_size > tilemap.tile_set.tile_size[0]:
+					print(1)
+		print(list)
+		return list
+
+func get_top_level_nodes() -> Array:
+	var root = get_tree().get_current_scene()
+	return root.get_children()
+
+func get_current_tile(world_position) -> Vector2i:
+	return tilemap.local_to_map(tilemap.to_local(world_position))
 "
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_2xtmc"]
-atlas = ExtResource("1_jvolt")
-region = Rect2(0, 0, 110, 118)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_d4xvs"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_rk278"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_2xtmc")
+"texture": ExtResource("1_0h72e")
 }],
 "loop": true,
 "name": &"default",
@@ -57,5 +110,5 @@ animations = [{
 script = SubResource("GDScript_qtnep")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -59)
-sprite_frames = SubResource("SpriteFrames_d4xvs")
+sprite_frames = SubResource("SpriteFrames_rk278")
+centered = false
