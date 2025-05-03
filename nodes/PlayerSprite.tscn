@@ -1,0 +1,114 @@
+[gd_scene load_steps=4 format=3 uid="uid://drmqmiohuncs1"]
+
+[ext_resource type="Texture2D" uid="uid://snk838bkni7c" path="res://assets/Small Circle.png" id="1_0h72e"]
+
+[sub_resource type="GDScript" id="GDScript_qtnep"]
+script/source = "extends CharacterBody2D
+
+const TILE_SIZE = 16
+const MOVE_SPEED = 100
+
+@onready var tilemap = %TileMap
+var target_position: Vector2
+var moving = false
+var last_input_vector := Vector2.ZERO
+
+func _ready():
+	target_position = position
+
+func _physics_process(_delta):
+	moveObject()
+
+func moveObject():
+	if moving:
+		var direction = (target_position - position).normalized()
+		velocity = direction * MOVE_SPEED
+		move_and_slide()
+		if position.distance_to(target_position) < 1:
+			position = target_position  # Snap to grid
+			moving = false
+			velocity = Vector2.ZERO
+	else:
+		var input_vector = get_input_vector()
+		if input_vector != Vector2.ZERO:
+			var new_target = position + input_vector * TILE_SIZE
+			if not is_colliding(new_target):
+				target_position = new_target
+				moving = true
+
+func get_input_vector() -> Vector2:
+	var input_vector := Vector2.ZERO
+
+	if Input.is_action_pressed(\"ui_right\"):
+		input_vector.x += 1
+	if Input.is_action_pressed(\"ui_left\"):
+		input_vector.x -= 1
+	if Input.is_action_pressed(\"ui_down\"):
+		input_vector.y += 1
+	if Input.is_action_pressed(\"ui_up\"):
+		input_vector.y -= 1
+
+	# Only one axis at a time, based on last input direction
+	if input_vector.x != 0 and input_vector.y != 0:
+		if abs(last_input_vector.x) > 0:
+			input_vector.y = 0
+		else:
+			input_vector.x = 0
+	return input_vector.normalized()
+
+func is_colliding(target_pos: Vector2) -> bool:
+	# Optional: implement collision checking here
+	var list = getObjectLocations()
+	if list.has(get_current_tile(target_pos)):
+		return true
+	return false  # Replace with actual logic if needed
+
+func _unhandled_input(event):
+	if event is InputEventKey and event.pressed:
+		if event.is_action_pressed(\"ui_up\"):
+			last_input_vector = Vector2(0, -1)
+		elif event.is_action_pressed(\"ui_down\"):
+			last_input_vector = Vector2(0, 1)
+		elif event.is_action_pressed(\"ui_left\"):
+			last_input_vector = Vector2(-1, 0)
+		elif event.is_action_pressed(\"ui_right\"):
+			last_input_vector = Vector2(1, 0)
+
+func getObjectLocations():
+		var nodes = get_top_level_nodes()
+		var list = []
+		for n in nodes:
+			list.append(get_current_tile(n.position))
+# Get the image size 
+# If image size > tilesize then append extra tile positions
+			if n.get_node(\"Image\") != null:
+				if n.get_node(\"Image\").tile_size > tilemap.tile_set.tile_size[0]:
+					print(1)
+		print(list)
+		return list
+
+func get_top_level_nodes() -> Array:
+	var root = get_tree().get_current_scene()
+	return root.get_children()
+
+func get_current_tile(world_position) -> Vector2i:
+	return tilemap.local_to_map(tilemap.to_local(world_position))
+"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_rk278"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_0h72e")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="CharacterBody2D" type="CharacterBody2D"]
+script = SubResource("GDScript_qtnep")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_rk278")
+centered = false

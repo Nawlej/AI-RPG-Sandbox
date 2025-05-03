@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://cpf486o324uca"]
+
+[ext_resource type="Texture2D" uid="uid://ty70g8p7khta" path="res://assets/Small square.png" id="1_dfy8f"]
+[ext_resource type="Script" path="res://nodes/AnimatedSprite2D.gd" id="2_k3ejv"]
+[ext_resource type="Texture2D" uid="uid://b6rfxqw8324fx" path="res://assets/Small rectangle.png" id="3_r33fi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p6yr3"]
+atlas = ExtResource("1_dfy8f")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3h0ph"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p6yr3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_r33fi")
+}],
+"loop": true,
+"name": &"new_animation",
+"speed": 5.0
+}]
+
+[node name="Rectangle" type="CharacterBody2D"]
+
+[node name="Image" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_3h0ph")
+animation = &"new_animation"
+centered = false
+script = ExtResource("2_k3ejv")
+tile_size = null
