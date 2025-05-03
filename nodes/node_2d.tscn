@@ -1,11 +1,23 @@
-[gd_scene load_steps=2 format=3 uid="uid://c4duway68xawa"]
+[gd_scene load_steps=3 format=3 uid="uid://c4duway68xawa"]
 
-[ext_resource type="PackedScene" uid="uid://drmqmiohuncs1" path="res://nodes/PlayerSprite.tscn" id="1_8csfl"]
+[ext_resource type="PackedScene" uid="uid://ky6ak2ejakwg" path="res://nodes/characters/NPC.tscn" id="1_papbn"]
+[ext_resource type="PackedScene" uid="uid://o1psr3xyy0iq" path="res://nodes/characters/Player.tscn" id="2_qscmc"]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-5, -55)
 
-[node name="CharacterBody2D" parent="." instance=ExtResource("1_8csfl")]
-position = Vector2(-2, -58)
+[node name="BaseCharacter" parent="." instance=ExtResource("1_papbn")]
+position = Vector2(-301, -89)
+
+[node name="BaseCharacter3" parent="." instance=ExtResource("1_papbn")]
+position = Vector2(361, -122)
+
+[node name="BaseCharacter2" parent="." instance=ExtResource("2_qscmc")]
+position = Vector2(-9, 100)
+
+[node name="Node2D" type="Node2D" parent="."]
+
+[node name="World" type="TileMap" parent="."]
+format = 2

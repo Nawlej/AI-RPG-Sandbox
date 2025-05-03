@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://cimqufbwmmksq"]
+
+[ext_resource type="Script" uid="uid://1qgnk3y5d11l" path="res://nodes/characters/base/BaseCharacter.gd" id="1_0khdy"]
+[ext_resource type="Script" uid="uid://c7mpkrvey3pxp" path="res://scripts/characters/DialogueComponent.gd" id="2_hddl4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nf17u"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_iva6t"]
+radius = 105.7
+
+[node name="BaseCharacter" type="CharacterBody2D"]
+script = ExtResource("1_0khdy")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_nf17u")
+
+[node name="DialogueComponent" type="Node" parent="."]
+script = ExtResource("2_hddl4")
+
+[node name="ProximitySensor" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ProximitySensor"]
+shape = SubResource("CircleShape2D_iva6t")
